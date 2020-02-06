@@ -10,7 +10,7 @@ Resources:
     Properties:
       Parameters:
         EC2KEY: !Ref EC2KEY
-      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC5.yml
+      TemplateURL: https://s3.ap-southeast-1.amazonaws.com/transit-gateway-workshop/Nested-Stack-VPC5.yml
       TimeoutInMinutes: 6
       Tags:
         - Key: Name
@@ -20,7 +20,7 @@ Resources:
     Properties:
       Parameters:
         EC2KEY: !Ref EC2KEY
-      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC6.yml
+      TemplateURL: https://s3.ap-southeast-1.amazonaws.com/transit-gateway-workshop/Nested-Stack-VPC6.yml
       TimeoutInMinutes: 6
       Tags:
         - Key: Name
@@ -30,7 +30,7 @@ Resources:
     Properties:
       Parameters:
         EC2KEY: !Ref EC2KEY
-      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC7.yml
+      TemplateURL: https://s3.ap-southeast-1.amazonaws.com/transit-gateway-workshop/Nested-Stack-VPC7.yml
       TimeoutInMinutes: 6
       Tags:
         - Key: Name
@@ -41,7 +41,7 @@ Resources:
     Properties:
       Parameters:
         EC2KEY: !Ref EC2KEY
-      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC8.yml
+      TemplateURL: https://s3.ap-southeast-1.amazonaws.com/transit-gateway-workshop/Nested-Stack-VPC8.yml
       TimeoutInMinutes: 6
       Tags:
         - Key: Name
@@ -63,7 +63,7 @@ Resources:
         VPC8: !GetAtt VPC08Stack.Outputs.VPC8
         VPC8Subnet1: !GetAtt VPC08Stack.Outputs.VPC8Subnet1
         VPC8Subnet2: !GetAtt VPC08Stack.Outputs.VPC8Subnet2
-      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-Transit-Gateway-2.yml
+      TemplateURL: https://s3.ap-southeast-1.amazonaws.com/transit-gateway-workshop/Nested-Stack-Transit-Gateway-2.yml
       TimeoutInMinutes: 10
       Tags:
         - Key: Name
@@ -78,7 +78,7 @@ Resources:
         VPC7RouteTable: !GetAtt VPC07Stack.Outputs.VPC7RouteTable
         VPC8RouteTable: !GetAtt VPC08Stack.Outputs.VPC8RouteTable
         Region2TransitGateway: !GetAtt TGW02Stack.Outputs.Region2TransitGateway
-      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC-Route-Table-2.yml
+      TemplateURL: https://s3.ap-southeast-1.amazonaws.com/transit-gateway-workshop/Nested-Stack-VPC-Route-Table-2.yml
       TimeoutInMinutes: 6
       Tags:
         - Key: Name
