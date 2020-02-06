@@ -1,4 +1,4 @@
-# Transit Gateway Workshop - CloudFormation 模版
+# Transit Gateway Workshop - CloudFormation 模版https://github.com/aobao32/transit-gateway-workshop/blob/master/README.md
 
 在本次AWS网络专题培训中，讲解了如下内容：
 
@@ -30,7 +30,7 @@
 
 每个模版都会生成VPC、子网、互联网网关、路由表、安全规则组等，且包含EC2实例和PublicIP用于登录。第一个模版使用网段10.1.0.0/16，第二个模版使用网段192.168.0.0/16。然后，即可开始实验，手工创建VPC Peering。
 
-=========
+***
 
 ### 实验四、一个Region内多个VPC之间使用Transit Gateway组建星形网络的模版说明
 
@@ -45,6 +45,8 @@
 嵌套模版的使用方法是：将所有模版都上传到S3同一个bucket下。打开文本编辑器修改主模版文件，找到其中调用嵌套模版的几个调用URL网址，将模版内的URL替换为当前所在S3 bucket发布出来的正确网址。然后启动Cloudformation界面，将S3上主模版发布出来的HTTP URL填写到cloudformation界面中即可。
 
 每个模版都会生成VPC、子网、互联网网关、路由表、安全规则组等，且包含EC2实例和PublicIP用于登录。4个VPC模版分别使用网段10.1.0.0/16到10.4.0.0/16。然后，即可开始实验，手工创建Transit Gateway将四个VPC连接起来。
+
+***
 
 ### 实验五、跨Region多个VPC之间使用Inter-region Peering组建网络的模版说明
 
