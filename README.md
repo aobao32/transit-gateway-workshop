@@ -1,5 +1,7 @@
 # Transit Gateway Workshop - CloudFormation 模版
 
+![Transit Gateway Inter-region Peering](https://github.com/aobao32/transit-gateway-workshop/raw/master/transit-gateway-with-Inter-region-peering.png)
+
 在本次AWS网络专题培训中，讲解了如下内容：
 
 - 一、VPC基础知识
