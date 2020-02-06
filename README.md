@@ -1,4 +1,4 @@
-# Transit Gateway Workshop - CloudFormation 模版https://github.com/aobao32/transit-gateway-workshop/blob/master/README.md
+# Transit Gateway Workshop - CloudFormation 模版
 
 在本次AWS网络专题培训中，讲解了如下内容：
 
@@ -36,7 +36,7 @@
 
 本实验使用模版如下（支持中国区域）：
 
-- 02-create-4-vpc.yml 模版，主嵌套调用如下4个模版
+- 02-create-4-vpc.yml 主模版，嵌套调用如下4个模版
   * Nested-Stack-VPC1.yml
   * Nested-Stack-VPC2.yml
   * Nested-Stack-VPC3.yml
@@ -73,6 +73,8 @@
 每个模版都会生成VPC、子网、互联网网关、路由表、安全规则组等，且包含EC2实例和PublicIP用于登录。其中8个VPC模版分别使用网段10.1.0.0/16到10.8.0.0/16。
 
 模版分两个区域分别运行，第1个区域运行第一个模版，将生成VPC1-4，并包含Transit Gateway 1，且VPC1～4已经是通过Transite Gateway 1处于Full-mesh互通状态。第2个区域运行第二个模版，将生成VPC5-8，并包含Transit Gateway 2，且VPC1～4已经是通过Transite Gateway 2处于Full-mesh互通状态。随后，即可开始实验，手工创建Transit Gateway 1～2 之间的 Inter-region Peering 。
+
+***
 
 # 反馈
 
