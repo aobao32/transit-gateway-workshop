@@ -30,6 +30,8 @@
 
 每个模版都会生成VPC、子网、互联网网关、路由表、安全规则组等，且包含EC2实例和PublicIP用于登录。第一个模版使用网段10.1.0.0/16，第二个模版使用网段192.168.0.0/16。然后，即可开始实验，手工创建VPC Peering。
 
+=========
+
 ### 实验四、一个Region内多个VPC之间使用Transit Gateway组建星形网络的模版说明
 
 本实验使用模版如下（支持中国区域）：
@@ -42,7 +44,7 @@
   
 嵌套模版的使用方法是：将所有模版都上传到S3同一个bucket下。打开文本编辑器修改主模版文件，找到其中调用嵌套模版的几个调用URL网址，将模版内的URL替换为当前所在S3 bucket发布出来的正确网址。然后启动Cloudformation界面，将S3上主模版发布出来的HTTP URL填写到cloudformation界面中即可。
 
-每个模版都会生成VPC、子网、互联网网关、路由表、安全规则组等，且包含EC2实例和PublicIP用于登录。4个VPC模版分别使用网段10.1.0.0/16到10.4.0.0/16。然后，即可开始实验，手工创建Transit Gateway。
+每个模版都会生成VPC、子网、互联网网关、路由表、安全规则组等，且包含EC2实例和PublicIP用于登录。4个VPC模版分别使用网段10.1.0.0/16到10.4.0.0/16。然后，即可开始实验，手工创建Transit Gateway将四个VPC连接起来。
 
 ### 实验五、跨Region多个VPC之间使用Inter-region Peering组建网络的模版说明
 
@@ -66,7 +68,9 @@
 
 嵌套模版的使用方法是：将所有模版都上传到S3同一个bucket下。打开文本编辑器修改主模版文件，找到其中调用嵌套模版的几个调用URL网址，将模版内的URL替换为当前所在S3 bucket发布出来的正确网址。然后启动Cloudformation界面，将S3上主模版发布出来的HTTP URL填写到cloudformation界面中即可。
 
-每个模版都会生成VPC、子网、互联网网关、路由表、安全规则组等，且包含EC2实例和PublicIP用于登录。其中8个VPC模版分别使用网段10.1.0.0/16到10.8.0.0/16。然后，即可开始实验，手工创建Transit Gateway Inter-region Peering。
+每个模版都会生成VPC、子网、互联网网关、路由表、安全规则组等，且包含EC2实例和PublicIP用于登录。其中8个VPC模版分别使用网段10.1.0.0/16到10.8.0.0/16。
+
+模版分两个区域分别运行，第1个区域运行第一个模版，将生成VPC1-4，并包含Transit Gateway 1，且VPC1～4已经是通过Transite Gateway 1处于Full-mesh互通状态。第2个区域运行第二个模版，将生成VPC5-8，并包含Transit Gateway 2，且VPC1～4已经是通过Transite Gateway 2处于Full-mesh互通状态。随后，即可开始实验，手工创建Transit Gateway 1～2 之间的 Inter-region Peering 。
 
 # 反馈
 
