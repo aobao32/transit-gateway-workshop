@@ -1,0 +1,87 @@
+Description:  Transit Gateway in Region 2
+Parameters:
+  VPC5Subnet1: 
+    Type: String
+  VPC5Subnet2: 
+    Type: String
+  VPC6Subnet1: 
+    Type: String
+  VPC6Subnet2: 
+    Type: String
+  VPC7Subnet1: 
+    Type: String
+  VPC7Subnet2: 
+    Type: String
+  VPC8Subnet1: 
+    Type: String
+  VPC8Subnet2: 
+    Type: String
+  VPC5: 
+    Type: String
+  VPC6: 
+    Type: String
+  VPC7: 
+    Type: String
+  VPC8: 
+    Type: String
+Resources:
+  Region2TransitGateway:
+    Type: "AWS::EC2::TransitGateway"
+    Properties:
+      AmazonSideAsn: 65000
+      Description: "Transit Gateway Workshop"
+      AutoAcceptSharedAttachments: "disable"
+      DefaultRouteTableAssociation: "enable"
+      DnsSupport: "enable"
+      VpnEcmpSupport: "enable"
+      Tags:
+        - Key: Name
+          Value: "Region2TransitGateway"
+  Region2TransitGatewayAttachment1:
+    Type: AWS::EC2::TransitGatewayAttachment
+    Properties: 
+      SubnetIds: 
+        - !Ref VPC5Subnet1
+        - !Ref VPC5Subnet2
+      Tags: 
+        - Key: Name
+          Value: VPC5
+      TransitGatewayId: !Ref Region2TransitGateway
+      VpcId: !Ref VPC5
+  Region2TransitGatewayAttachment2:
+    Type: AWS::EC2::TransitGatewayAttachment
+    Properties: 
+      SubnetIds: 
+        - !Ref VPC6Subnet1
+        - !Ref VPC6Subnet2
+      Tags: 
+        - Key: Name
+          Value: VPC6
+      TransitGatewayId: !Ref Region2TransitGateway
+      VpcId: !Ref VPC6
+  Region2TransitGatewayAttachment3:
+    Type: AWS::EC2::TransitGatewayAttachment
+    Properties: 
+      SubnetIds: 
+        - !Ref VPC7Subnet1
+        - !Ref VPC7Subnet2
+      Tags: 
+        - Key: Name
+          Value: VPC7
+      TransitGatewayId: !Ref Region2TransitGateway
+      VpcId: !Ref VPC7
+  Region2TransitGatewayAttachment4:
+    Type: AWS::EC2::TransitGatewayAttachment
+    Properties: 
+      SubnetIds: 
+        - !Ref VPC8Subnet1
+        - !Ref VPC8Subnet2
+      Tags: 
+        - Key: Name
+          Value: VPC8
+      TransitGatewayId: !Ref Region2TransitGateway
+      VpcId: !Ref VPC8
+Outputs:
+    Region2TransitGateway:
+      Description: TGW ID for Route Table
+      Value: !Ref Region2TransitGateway

@@ -1,0 +1,85 @@
+Description:  Add Route into Route Table for Transit Gateway
+Parameters:
+  VPC1RouteTable: 
+    Type: String
+  VPC2RouteTable: 
+    Type: String
+  VPC3RouteTable: 
+    Type: String
+  VPC4RouteTable: 
+    Type: String
+  Region1TransitGateway:
+    Type: String
+Resources:
+  VPC1TGWRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC1RouteTable
+       DestinationCidrBlock: 10.2.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC1TGWRoute3:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC1RouteTable
+       DestinationCidrBlock: 10.3.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC1TGWRoute4:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC1RouteTable
+       DestinationCidrBlock: 10.4.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC2TGWRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC2RouteTable
+       DestinationCidrBlock: 10.1.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC2TGWRoute3:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC2RouteTable
+       DestinationCidrBlock: 10.3.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC2TGWRoute4:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC2RouteTable
+       DestinationCidrBlock: 10.4.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC3TGWRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC3RouteTable
+       DestinationCidrBlock: 10.1.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC3TGWRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC3RouteTable
+       DestinationCidrBlock: 10.2.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC3TGWRoute4:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC3RouteTable
+       DestinationCidrBlock: 10.4.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC4TGWRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC4RouteTable
+       DestinationCidrBlock: 10.1.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC4TGWRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC4RouteTable
+       DestinationCidrBlock: 10.2.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway
+  VPC4TGWRoute3:
+    Type: AWS::EC2::Route
+    Properties:
+       RouteTableId: !Ref VPC4RouteTable
+       DestinationCidrBlock: 10.3.0.0/16
+       TransitGatewayId: !Ref Region1TransitGateway

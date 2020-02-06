@@ -1,0 +1,185 @@
+Description:  This template deploys a single VPC with two public subnet
+Parameters:
+  EnvironmentName:
+    Description: Please define VPC name
+    Type: String
+    Default: VPC-workshop-02
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 192.168.0.0/16
+  PublicSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+    Type: String
+    Default: 192.168.1.0/24
+  PublicSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the second Availability Zone
+    Type: String
+    Default: 192.168.2.0/24
+  EC2loginKey:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+  InstanceType:
+    Description: Choose EC2 instance type
+    Type: String
+    Default: t2.small
+    AllowedValues:
+      - t2.small
+    ConstraintDescription: must be a valid EC2 instance type.
+Mappings:
+  AWSInstanceType2Arch:
+    t2.small:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+    cn-northwest-1:
+      HVM64: ami-00a47f95dff9b0ac0
+    cn-north-1:
+      HVM64: ami-0442b0a087508033e
+    ap-southeast-1:
+      HVM64: ami-05c64f7b4062b0a21
+    us-west-1:
+      HVM64: ami-03caa3f860895f82e
+    us-west-2:
+      HVM64: ami-04590e7389a6e577c
+    us-east-1:
+      HVM64: ami-062f7200baf2fa504
+    us-east-2:
+      HVM64: ami-02ccb28830b645a41
+    ap-south-1:
+      HVM64: ami-0217a85e28e625474
+    ap-northeast-1:
+      HVM64: ami-011facbea5ec0363b
+    ap-northeast-2:
+      HVM64: ami-0bea7fd38fabe821a
+    eu-central-1:
+      HVM64: ami-07cda0db070313c52
+    eu-west-1:
+      HVM64: ami-0713f98de93617bb4
+    eu-west-2:
+      HVM64: ami-0089b31e09ac3fffc
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Routes
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+  AllowSSHandPing:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn: PublicSubnet1RouteTableAssociation
+    Properties:
+      GroupDescription: Allow ssh and ping
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: icmp
+          FromPort: '8'
+          ToPort: '-1'
+          CidrIp: 0.0.0.0/0
+  EC2vpctest:
+    Type: 'AWS::EC2::Instance'
+    DependsOn: AllowSSHandPing
+    Properties:
+      KeyName: !Ref EC2loginKey
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - !Ref InstanceType
+          - Arch
+      InstanceType: t2.small
+      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
+      SubnetId: !Ref PublicSubnet1
+      SecurityGroupIds:
+        - !Ref AllowSSHandPing
+      UserData: !Base64 
+        'Fn::Join':
+          - ''
+          - - |
+              #! /bin/bash
+            - |
+              yum update -y
+            - |+
+Outputs:
+    EC2Login:
+      Description: Use this command to login to EC2
+      Value: !Join 
+        - ''
+        - - "ssh -i "
+          - !Ref EC2loginKey
+          - ".pem ec2-user@"
+          - !GetAtt 
+            - EC2vpctest
+            - PublicIp
+    PrivateIP:
+      Description: EC2 Private IP in VPC
+      Value: !GetAtt EC2vpctest.PrivateIp
+    VPCID:
+      Value: !Ref VPC
+    Subnet1:
+      Value: !Ref PublicSubnet1
+    Subnet2:
+      Value: !Ref PublicSubnet2

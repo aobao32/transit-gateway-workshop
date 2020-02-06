@@ -1,0 +1,104 @@
+Description:  Main Template for Transit Gateway Workshop
+Parameters:
+  EC2KEY:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+Resources:
+  VPC01Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        EC2KEY: !Ref EC2KEY
+      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC1.yml
+      TimeoutInMinutes: 6
+      Tags:
+        - Key: Name
+          Value: VPC01Stack
+  VPC02Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        EC2KEY: !Ref EC2KEY
+      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC2.yml
+      TimeoutInMinutes: 6
+      Tags:
+        - Key: Name
+          Value: VPC02Stack
+  VPC03Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        EC2KEY: !Ref EC2KEY
+      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC3.yml
+      TimeoutInMinutes: 6
+      Tags:
+        - Key: Name
+          Value: VPC03Stack
+  VPC04Stack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: VPC03Stack
+    Properties:
+      Parameters:
+        EC2KEY: !Ref EC2KEY
+      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC4.yml
+      TimeoutInMinutes: 6
+      Tags:
+        - Key: Name
+          Value: VPC04Stack
+  TGW01Stack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: VPC04Stack
+    Properties:
+      Parameters:
+        VPC1: !GetAtt VPC01Stack.Outputs.VPC1
+        VPC1Subnet1: !GetAtt VPC01Stack.Outputs.VPC1Subnet1
+        VPC1Subnet2: !GetAtt VPC01Stack.Outputs.VPC1Subnet2
+        VPC2: !GetAtt VPC02Stack.Outputs.VPC2
+        VPC2Subnet1: !GetAtt VPC02Stack.Outputs.VPC2Subnet1
+        VPC2Subnet2: !GetAtt VPC02Stack.Outputs.VPC2Subnet2
+        VPC3: !GetAtt VPC03Stack.Outputs.VPC3
+        VPC3Subnet1: !GetAtt VPC03Stack.Outputs.VPC3Subnet1
+        VPC3Subnet2: !GetAtt VPC03Stack.Outputs.VPC3Subnet2
+        VPC4: !GetAtt VPC04Stack.Outputs.VPC4
+        VPC4Subnet1: !GetAtt VPC04Stack.Outputs.VPC4Subnet1
+        VPC4Subnet2: !GetAtt VPC04Stack.Outputs.VPC4Subnet2
+      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-Transit-Gateway-1.yml
+      TimeoutInMinutes: 10
+      Tags:
+        - Key: Name
+          Value: TGW01Stack
+  RouteTable01Stack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: TGW01Stack
+    Properties:
+      Parameters:
+        VPC1RouteTable: !GetAtt VPC01Stack.Outputs.VPC1RouteTable
+        VPC2RouteTable: !GetAtt VPC02Stack.Outputs.VPC2RouteTable
+        VPC3RouteTable: !GetAtt VPC03Stack.Outputs.VPC3RouteTable
+        VPC4RouteTable: !GetAtt VPC04Stack.Outputs.VPC4RouteTable
+        Region1TransitGateway: !GetAtt TGW01Stack.Outputs.Region1TransitGateway
+      TemplateURL: https://transit-gateway-workshop.s3.cn-northwest-1.amazonaws.com.cn/Nested-Stack-VPC-Route-Table-1.yml
+      TimeoutInMinutes: 6
+      Tags:
+        - Key: Name
+          Value: RouteTable01Stack
+Outputs:
+    JumpServerLogin:
+      Description: Use this command to login to EC2
+      Value: !GetAtt VPC01Stack.Outputs.EC2Login
+    VPC1EC2PrivateIP:
+      Description: EC2 Private IP in VPC1
+      Value: !GetAtt VPC01Stack.Outputs.VPC1PrivateIP
+    VPC2EC2PrivateIP:
+      Description: EC2 Private IP in VPC2
+      Value: !GetAtt VPC02Stack.Outputs.VPC2PrivateIP
+    VPC3EC2PrivateIP:
+      Description: EC2 Private IP in VPC3
+      Value: !GetAtt VPC03Stack.Outputs.VPC3PrivateIP
+    VPC4EC2PrivateIP:
+      Description: EC2 Private IP in VPC4
+      Value: !GetAtt VPC04Stack.Outputs.VPC4PrivateIP
+    TGW01: 
+      Description: Network topologic
+      Value: "Full mesh network created, all VPC have valid route to others."

@@ -1,0 +1,134 @@
+Description:  This template for VPC3
+Parameters:
+  EC2KEY:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+Mappings:
+  AWSInstanceType2Arch:
+    t2.small:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+    ap-southeast-1:
+      HVM64: ami-05c64f7b4062b0a21
+    cn-northwest-1:
+      HVM64: ami-00a47f95dff9b0ac0
+    cn-north-1:
+      HVM64: ami-0442b0a087508033e
+Resources:
+  VPC3:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.3.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: name
+          Value: VPC3
+  VPC3InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: VPC3
+  VPC3InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref VPC3InternetGateway
+      VpcId: !Ref VPC3
+  VPC3Subnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC3
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.3.1.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: VPC3Subnet1
+  VPC3Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC3
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: 10.3.2.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: VPC3Subnet2
+  VPC3RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC3
+      Tags:
+        - Key: Name
+          Value: VPC3RouteTable
+  VPC3DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VPC3InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref VPC3RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref VPC3InternetGateway
+  VPC3Subnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VPC3RouteTable
+      SubnetId: !Ref VPC3Subnet1
+  VPC3Subnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VPC3RouteTable
+      SubnetId: !Ref VPC3Subnet2
+  VPC3SecurtiyGroupAllowSSHandPing:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn: VPC3Subnet2RouteTableAssociation
+    Properties:
+      GroupDescription: VPC3 - Allow SSH and Ping
+      VpcId: !Ref VPC3
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: icmp
+          FromPort: '8'
+          ToPort: '-1'
+          CidrIp: 0.0.0.0/0
+  VPC3EC2:
+    Type: 'AWS::EC2::Instance'
+    DependsOn: VPC3SecurtiyGroupAllowSSHandPing
+    Properties:
+      KeyName: !Ref EC2KEY
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - t2.small
+          - Arch
+      InstanceType: t2.small
+      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
+      SubnetId: !Ref VPC3Subnet1
+      SecurityGroupIds:
+        - !Ref VPC3SecurtiyGroupAllowSSHandPing
+      UserData: !Base64 
+        'Fn::Join':
+          - ''
+          - - |
+              #! /bin/bash
+            - |
+              yum update -y
+            - |+
+Outputs:
+    VPC3PrivateIP:
+      Description: EC2 Private IP in VPC3
+      Value: !GetAtt VPC3EC2.PrivateIp
+    VPC3Subnet1:
+      Value: !Ref VPC3Subnet1
+    VPC3Subnet2:
+      Value: !Ref VPC3Subnet2
+    VPC3:
+      Value: !Ref VPC3
+    VPC3RouteTable:
+      Value: !Ref VPC3RouteTable

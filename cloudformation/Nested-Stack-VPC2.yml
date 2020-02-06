@@ -1,0 +1,154 @@
+Description:  This template for VPC2
+Parameters:
+  EC2KEY:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+Mappings:
+  AWSInstanceType2Arch:
+    t2.small:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+    cn-northwest-1:
+      HVM64: ami-00a47f95dff9b0ac0
+    cn-north-1:
+      HVM64: ami-0442b0a087508033e
+    ap-southeast-1:
+      HVM64: ami-05c64f7b4062b0a21
+    us-west-1:
+      HVM64: ami-03caa3f860895f82e
+    us-west-2:
+      HVM64: ami-04590e7389a6e577c
+    us-east-1:
+      HVM64: ami-062f7200baf2fa504
+    us-east-2:
+      HVM64: ami-02ccb28830b645a41
+    ap-south-1:
+      HVM64: ami-0217a85e28e625474
+    ap-northeast-1:
+      HVM64: ami-011facbea5ec0363b
+    ap-northeast-2:
+      HVM64: ami-0bea7fd38fabe821a
+    eu-central-1:
+      HVM64: ami-07cda0db070313c52
+    eu-west-1:
+      HVM64: ami-0713f98de93617bb4
+    eu-west-2:
+      HVM64: ami-0089b31e09ac3fffc
+Resources:
+  VPC2:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.2.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: name
+          Value: VPC2
+  VPC2InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: VPC2
+  VPC2InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref VPC2InternetGateway
+      VpcId: !Ref VPC2
+  VPC2Subnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC2
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.2.1.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: VPC2Subnet1
+  VPC2Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC2
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: 10.2.2.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: VPC2Subnet2
+  VPC2RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC2
+      Tags:
+        - Key: Name
+          Value: VPC2RouteTable
+  VPC2DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VPC2InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref VPC2RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref VPC2InternetGateway
+  VPC2Subnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VPC2RouteTable
+      SubnetId: !Ref VPC2Subnet1
+  VPC2Subnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref VPC2RouteTable
+      SubnetId: !Ref VPC2Subnet2
+  VPC2SecurtiyGroupAllowSSHandPing:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn: VPC2Subnet2RouteTableAssociation
+    Properties:
+      GroupDescription: VPC2 - Allow SSH and Ping
+      VpcId: !Ref VPC2
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: icmp
+          FromPort: '8'
+          ToPort: '-1'
+          CidrIp: 0.0.0.0/0
+  VPC2EC2:
+    Type: 'AWS::EC2::Instance'
+    DependsOn: VPC2SecurtiyGroupAllowSSHandPing
+    Properties:
+      KeyName: !Ref EC2KEY
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - t2.small
+          - Arch
+      InstanceType: t2.small
+      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
+      SubnetId: !Ref VPC2Subnet1
+      SecurityGroupIds:
+        - !Ref VPC2SecurtiyGroupAllowSSHandPing
+      UserData: !Base64 
+        'Fn::Join':
+          - ''
+          - - |
+              #! /bin/bash
+            - |
+              yum update -y
+            - |+
+Outputs:
+    VPC2PrivateIP:
+      Description: EC2 Private IP in VPC2
+      Value: !GetAtt VPC2EC2.PrivateIp
+    VPC2Subnet1:
+      Value: !Ref VPC2Subnet1
+    VPC2Subnet2:
+      Value: !Ref VPC2Subnet2
+    VPC2:
+      Value: !Ref VPC2
+    VPC2RouteTable:
+      Value: !Ref VPC2RouteTable
