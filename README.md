@@ -1,6 +1,6 @@
 # Transit Gateway Workshop - CloudFormation 模版
 
-![Transit Gateway Inter-region Peering](https://s3.cn-northwest-1.amazonaws.com.cn/transit-gateway-workshop/transit-gateway-with-Inter-region-peering.png)
+![Transit Gateway Inter-region Peering](https://camo.githubusercontent.com/ceb502accd82b95d11e5e3201da142bd949d0da1/68747470733a2f2f73332e636e2d6e6f727468776573742d312e616d617a6f6e6177732e636f6d2e636e2f7472616e7369742d676174657761792d776f726b73686f702f7472616e7369742d676174657761792d776974682d496e7465722d726567696f6e2d70656572696e672e706e67g)
 
 在本次AWS网络专题培训中，讲解了如下内容：
 
